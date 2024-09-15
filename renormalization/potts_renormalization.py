@@ -1,6 +1,6 @@
 import numpy as np
 import mpmath as mp
-import matrix_manipulation as mm
+from renormalization import matrix_manipulation as mm
 
 class CubicPottsModel:
 
