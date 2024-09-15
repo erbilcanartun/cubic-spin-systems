@@ -96,7 +96,7 @@ class PottsRenormalizationGroup(CubicPottsModel):
         
         return T
     
-    def renormalize(self, transfer_matrix, iteration=10):
+    def renormalize(self, transfer_matrix, iteration=20):
         
         T = mm.normalizer(transfer_matrix)
         for i in range(iteration):
