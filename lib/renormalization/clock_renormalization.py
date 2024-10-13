@@ -1,6 +1,6 @@
 import numpy as np
 import mpmath as mp
-from renormalization import matrix_manipulation as mm
+from lib.matrix_manipulation import *
 
 class CubicClockModel:
 
@@ -18,7 +18,7 @@ class CubicClockModel:
         self.method = bondmoving_method
 
         def cubic_clock_transfer_matrix(j, k, method):
-            
+
             J, K = mp.mpf(j), mp.mpf(k)
             
             if method == 'old':
@@ -42,7 +42,6 @@ class CubicClockModel:
                                [mp.mpf(-J),     mp.mpf(-J - K), mp.mpf(-J),     mp.mpf(J),      mp.exp(J + K),  mp.exp(J),      vacancy],
                                [mp.mpf(-J - K), mp.mpf(-J),     mp.mpf(-J),     mp.mpf(J),      mp.exp(J),      mp.exp(J + K),  vacancy],
                                [vacancy,        vacancy,        vacancy,        vacancy,        vacancy,        vacancy,        vacancy_]]
-
             return t
 
         self.transfer_matrix = cubic_clock_transfer_matrix(self.J, self.K, self.method)
@@ -74,35 +73,35 @@ class PottsRenormalizationGroup(CubicClockModel):
 
 def renormalize(self, transfer_matrix, iteration=20):
     
-    T = mm.normalizer(transfer_matrix)
+    T = normalizer(transfer_matrix)
 
     for i in range(iteration):
     
         T = self._bond_moving(T)
         T = self._decimation(T)
-        T = mm.normalizer(T)
+        T = normalizer(T)
         
     return T
 
 def phase(self, transfer_matrix, max_iter=20):
     
     n = len(transfer_matrix)
-    t = mm.normalizer(transfer_matrix)
+    t = normalizer(transfer_matrix)
     e = 1e-3
     
     for i in range(10):
         t = self._bond_moving(t)
         t = self._decimation(t)
-        t = mm.normalizer(t)
+        t = normalizer(t)
     
     for i in range(max_iter):
         t = self._bond_moving(t)
         t = self._decimation(t)
-        t = mm.normalizer(t)
+        t = normalizer(t)
 
         tsum = np.sum(t)
-        diagsum = np.sum(mm.main_diagonal(t))
-        offdiagsum = np.sum(mm.off_diagonal(t))
+        diagsum = np.sum(main_diagonal(t))
+        offdiagsum = np.sum(off_diagonal(t))
 
         if 36-e < tsum < 36+e:
             phase = "D"

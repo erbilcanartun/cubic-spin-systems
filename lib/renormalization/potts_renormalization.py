@@ -1,6 +1,6 @@
 import numpy as np
 import mpmath as mp
-from renormalization import matrix_manipulation as mm
+from lib.matrix_manipulation import *
 
 class CubicPottsModel:
 
@@ -21,6 +21,7 @@ class CubicPottsModel:
             n = int(q)
             
             if dtype == "npf":
+
                 T = np.zeros([n, n])
                 for i in range(n):
                     for j in range(n):
@@ -30,8 +31,9 @@ class CubicPottsModel:
                             T[i][n - 1 - i] = np.exp(-K)
                         else:
                             T[i][j] = 1
-            
+
             if dtype == "mpf":
+
                 J_, K_ = mp.mpf(J), mp.mpf(K)
                 T = mp.matrix(n)
                 for i in range(n):
@@ -58,26 +60,12 @@ class PottsRenormalizationGroup(CubicPottsModel):
         
         if type(transfer_matrix) == (np.ndarray or list):
             T = transfer_matrix ** self.m
-            
-            #T = np.multiply(transfer_matrix, transfer_matrix)
-            #for i in range(self.m - 2):
-            #    T = np.multiply(T, transfer_matrix)
-                
+
         if type(transfer_matrix) == mp.matrix:
             T = mp.matrix(n)
             for i in range(n):
                 for j in range(n):
                     T[i, j] = transfer_matrix[i, j] ** self.m
-            
-            #for i in range(n):
-            #    for j in range(n):
-            #        T[i, j] = transfer_matrix[i, j] * transfer_matrix[i, j]
-    
-            #for k in range(self.m - 2):
-            #    for i in range(n):
-            #        for j in range(n):
-            #            T[i, j] = T[i, j] * transfer_matrix[i, j]
-        
         return T
     
     def _decimation(self, transfer_matrix):
@@ -98,51 +86,51 @@ class PottsRenormalizationGroup(CubicPottsModel):
     
     def renormalize(self, transfer_matrix, iteration=20):
         
-        T = mm.normalizer(transfer_matrix)
+        T = normalizer(transfer_matrix)
         for i in range(iteration):
             
             T = self._bond_moving(T)
             T = self._decimation(T)
-            T = mm.normalizer(T)
+            T = normalizer(T)
             
         return T
     
     def phase(self, transfer_matrix, max_iter=20):
         
         n = len(transfer_matrix)
-        T = mm.normalizer(transfer_matrix)
+        T = normalizer(transfer_matrix)
     
         for i in range(max_iter):
 
             T = self._bond_moving(T)
             T = self._decimation(T)
-            T = mm.normalizer(T)
+            T = normalizer(T)
             
             eps = 1e-3
             n2 = n ** 2
     
             tsum = np.sum(T)
-            diagsum = np.sum(mm.main_diagonal(T))
-            antidiagsum = np.sum(mm.anti_diagonal(T))
-            offdiagsum = np.sum(mm.off_diagonal(T))
-            offantidiagsum = np.sum(mm.off_anti_diagonal(T))
+            diagsum = np.sum(main_diagonal(T))
+            antidiagsum = np.sum(anti_diagonal(T))
+            offdiagsum = np.sum(off_diagonal(T))
+            offantidiagsum = np.sum(off_anti_diagonal(T))
     
             if type(T) == (np.ndarray or list):
     
-                    if tsum > n2 - eps and tsum < n2 + eps: # D: all elements 1
-                        phase = "D"
+                    if tsum > n2 - eps and tsum < n2 + eps:
+                        phase = "D" # All elements 1
                         break
     
-                    elif diagsum > n - eps and offdiagsum < eps: # OA: only main diagonal
-                        phase = "OA"
+                    elif diagsum > n - eps and offdiagsum < eps:
+                        phase = "OA" # Only main diagonal
                         break
     
-                    elif antidiagsum > n - eps and offantidiagsum < eps: # OB: only anti-diagonal
-                        phase = "OB"
+                    elif antidiagsum > n - eps and offantidiagsum < eps:
+                        phase = "OB" # Only anti-diagonal
                         break
                         
-                    elif diagsum + antidiagsum > 2*n - eps and T[0][2] < eps: # OB: only main anti-diagonal
-                        phase = "OC"
+                    elif diagsum + antidiagsum > 2*n - eps and T[0][2] < eps:
+                        phase = "OC" # Only main anti-diagonal
                         break
     
                     else: # ?
@@ -151,32 +139,23 @@ class PottsRenormalizationGroup(CubicPottsModel):
     
             if type(T) == mp.matrix:
     
-                    if tsum > n2 - eps and tsum < n2 + eps: # D: all elements 1
-                        phase = "D"
+                    if tsum > n2 - eps and tsum < n2 + eps:
+                        phase = "D" # All elements 1
                         break
     
-                    elif diagsum > n - eps and offdiagsum < eps: # OA: only main diagonal 1
-                        phase = "OA"
+                    elif diagsum > n - eps and offdiagsum < eps:
+                        phase = "OA" # Only main diagonal 1
                         break
     
-                    elif antidiagsum > n - eps and offantidiagsum < eps: # OB: only anti-diagonal 1
-                        phase = "OB"
+                    elif antidiagsum > n - eps and offantidiagsum < eps:
+                        phase = "OB" # Only anti-diagonal 1
                         break
                         
-                    elif diagsum + antidiagsum > 2*n - eps and T[0, 2] < eps: # OB: only main diagonal + anti-diagonal 1
-                        phase = "OC"
+                    elif diagsum + antidiagsum > 2*n - eps and T[0, 2] < eps:
+                        phase = "OC" # Only main diagonal + anti-diagonal 1
                         break
     
-                    else: # ?
-                        phase = "OX"
+                    else:
+                        phase = "OX" # ?
     
         return T, phase
-    
-
-
-
-
-
-
-
-
