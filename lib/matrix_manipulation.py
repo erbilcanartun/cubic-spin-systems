@@ -4,6 +4,31 @@ import mpmath as mp
 def normalizer(x):
     return x / np.amax(x)
 
+def mp_multiply(t1, t2):
+
+    n = len(t1)
+    t = mp.matrix(n)
+
+    for i in range(n):
+        for j in range(n):
+            t[i, j] = t1[i, j] * t2[i, j]
+
+    return normalizer(t)
+
+def matrix_average(matrices):
+
+    n = len(matrices[0])
+    N = len(matrices)
+    t0 = mp.matrix(n)
+
+    for i in range(n):
+        for j in range(n):
+            c = 0
+            for t in matrices:
+                c += t[i, j]
+            t0[i, j] = c / N
+    return t0
+
 def main_diagonal(x):
 
     n = len(x)
@@ -49,17 +74,3 @@ def off_anti_diagonal(x):
     np.fill_diagonal(np.fliplr(a), 0)
 
     return np.extract(a, x)
-
-def matrix_average(matrices):
-
-    n = len(matrices[0])
-    N = len(matrices)
-    t0 = mp.matrix(n)
-
-    for i in range(n):
-        for j in range(n):
-            c = 0
-            for t in matrices:
-                c += t[i, j]
-            t0[i, j] = c / N
-    return t0
