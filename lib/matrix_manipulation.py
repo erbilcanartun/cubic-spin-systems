@@ -7,6 +7,10 @@ def normalizer(x):
 def mp_multiply(t1, t2):
 
     n = len(t1)
+    n2 = len(t2)
+    if n != n2:
+        raise ValueError("Size of t1 and t2 must be the same.")
+
     t = mp.matrix(n)
 
     for i in range(n):

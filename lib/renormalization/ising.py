@@ -1,10 +1,13 @@
 import numpy as np
 import mpmath as mp
 from lib.matrix_manipulation import *
+from lib.renormalization.utils import interaction
+
 
 class CubicIsingModel:
 
-    def __init__(self, energy, field, component, field_direction='x', aferro_concentration=0, lattice_size=500):
+    def __init__(self, energy, field, component, field_direction='x',
+                 aferro_concentration=0, lattice_size=500):
 
         self.b = 3 # Rescaling factor
         self.d = 3 # Dimension
@@ -147,3 +150,69 @@ class IsingRenormalizationGroup(CubicIsingModel):
             renormalized.append(r)
 
         return renormalized
+
+    def _deviator_transfer_matrix(self, j):
+        # Creates a transfer matrix with zero field
+        J = mp.mpf(j)
+
+        n = 2 * self.n
+        t = mp.matrix(n)
+        diag_element_counter = 0
+
+        for i in range(n):
+            for j in range(n):
+
+                if i == j:
+                    diag_element_counter += 1
+                    t[i, j] = mp.exp(J)
+
+                    if j + 1 <= n - 1 and diag_element_counter % 2 == 1:
+                        t[i, j + 1] = mp.exp(-J)
+
+                    if j - 1 >= 0 and diag_element_counter % 2 == 0:
+                        t[i, j - 1] = mp.exp(-J)
+
+                else:
+                    if t[i, j] == 0:
+                        t[i, j] = mp.exp(0)
+
+        return normalizer(t)
+
+    def renormalize_chaos(self, matrices, deviation=1e-3):
+        np.random.seed(19)
+
+        num = self.b * self.m # 27
+
+        N = len(matrices)
+        e = self._deviator_transfer_matrix(j = deviation)
+        renormalized = []
+        for k in range(N):
+
+            random = []
+            for _ in range(num):
+
+                i = np.random.randint(1, N)
+                random.append(matrices[i])
+
+            # Renormalize
+            dm = []
+            for i in range(0, len(random) - 1, 3):
+                dm.append(self._decimation(random[i:i + 3]))
+
+            r = self._bond_moving(dm)
+            renormalized.append(r)
+
+            if k == 19: # Arbitrary index
+                normal = r
+                deviated_random = []
+                for i in range(num):
+                    t = mp_multiply(random[i], e)
+                    deviated_random.append(t)
+
+                # Renormalize deviated bond
+                dm = []
+                for i in range(0, len(deviated_random) - 1, 3):
+                    dm.append(self._decimation(deviated_random[i:i + 3]))
+                deviated = self._bond_moving(dm)
+
+        return renormalized, interaction(normal), interaction(deviated)
