@@ -322,15 +322,15 @@ class IsingRenormalizationGroup(CubicIsingModel):
                     phase = "disorder"
                     break
 
-                elif 6-e < diagsum < 6+e and offdiagsum < e:
+                elif 6 - e < diagsum < 6 + e and offdiagsum < e:
                     phase = "ferro"
                     break
 
-                elif 1-e < tsum < 1+e and 1-e < t[0, 0] < 1+e:
+                elif 1 - e < tsum < 1 + e and 1 - e < t[0, 0] < 1 + e:
                     phase = "x_aligned"
                     break
 
-                elif 4-e < tsum < 4+e and 4-e < t[0, 0] + t[0, 2] + t[2, 0] + t[2, 2] < 4+e:
+                elif 4 - e < tsum < 4 + e and 4 - e < t[0, 0] + t[0, 2] + t[2, 0] + t[2, 2] < 4 + e:
                     phase = "xy_aligned"
                     break
 

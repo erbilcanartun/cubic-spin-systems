@@ -37,12 +37,12 @@ def main_diagonal(x):
 
     n = len(x)
 
-    if type(x) == (np.ndarray or list):
-        diag = np.array([])
-        for i in range(n):
-            for j in range(n):
-                if i == j:
-                    diag = np.append(diag, x[i][j])
+    #if type(x) == (np.ndarray or list):
+    #    diag = np.array([])
+    #    for i in range(n):
+    #        for j in range(n):
+    #            if i == j:
+    #                diag = np.append(diag, x[i][j])
 
     if type(x) == mp.matrix:
         diag = np.array([])
